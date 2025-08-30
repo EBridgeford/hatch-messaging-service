@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-import app.crud.messages as messages_crud
 import app.crud.conversations as convo_crud
 from app.api import deps
 

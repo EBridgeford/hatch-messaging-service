@@ -8,7 +8,7 @@ from sqlalchemy import (
 )
 
 from app.core.database import Base
-from app.schemas.messages import Message, MessageBase
+from app.schemas.messages import MessageBase
 
 
 # CREATE TABLE conversations (
@@ -23,6 +23,7 @@ class Conversation(Base):
     id: int = Column(Integer, primary_key=True, index=True)
     created_at: datetime = Column(DateTime, default=datetime.utcnow)
     updated_at: datetime = Column(DateTime, default=datetime.utcnow)
+
 
 class ConversationBase(BaseModel):
     id: int
