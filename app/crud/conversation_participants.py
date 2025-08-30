@@ -16,7 +16,9 @@ def find_conversation_id_for_users(db: Session, user_ids: list[int]) -> int | No
     return conversation_id
 
 
-def assign_users_for_new_convo(db: Session, conversation_id: int, user_ids: list[int]):
+def assign_users_for_new_convo(
+    db: Session, conversation_id: int, user_ids: list[int]
+) -> bool:
     try:
         participant_list = [
             {"conversation_id": conversation_id, "user_id": user_id}

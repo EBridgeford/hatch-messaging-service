@@ -46,7 +46,9 @@ class MessageBase(BaseModel):
     to_field: str | None = Field(alias="to", default=None)
     from_id: int | None = None
     to_id: int | None = None
-    message_type: str = Field(validation_alias=AliasChoices("message_type", "type"), default="email")
+    message_type: str = Field(
+        validation_alias=AliasChoices("message_type", "type"), default="email"
+    )
     conversation_id: int | None = None
     body: str
     attachments: list[str] | None = None

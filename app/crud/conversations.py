@@ -1,7 +1,8 @@
 from sqlalchemy.orm import Session
 
 from app.schemas.conversations import Conversation, ConversationWithMessages
-from app.schemas.messages import Message, MessageBase
+from app.schemas.messages import MessageBase
+import app.crud.messages as crud_messages
 
 
 def create(db: Session) -> int:
@@ -22,13 +23,12 @@ def get_conversation_by_id(
     if not conversation:
         return None
 
-    messages = (
-        db.query(Message).filter(Message.conversation_id == conversation_id).all()
-    )
+    messages = crud_messages.get_by_id(db, conversation_id)
 
     ret = ConversationWithMessages.model_validate(conversation)
 
-    ret.messages = [MessageBase.model_validate(message) for message in messages]
+    if messages:
+        ret.messages = [MessageBase.model_validate(message) for message in messages]
 
     return ret
 
@@ -41,15 +41,14 @@ def get_all(db: Session) -> list[ConversationWithMessages] | None:
 
     ret = []
     for conversation in conversations:
-        messages = (
-            db.query(Message).filter(Message.conversation_id == conversation.id).all()
-        )
+        messages = crud_messages.get_by_id(db, conversation.id)
 
         inner_ret = ConversationWithMessages.model_validate(conversation)
 
-        inner_ret.messages = [
-            MessageBase.model_validate(message) for message in messages
-        ]
+        if messages:
+            inner_ret.messages = [
+                MessageBase.model_validate(message) for message in messages
+            ]
 
         ret.append(inner_ret)
 

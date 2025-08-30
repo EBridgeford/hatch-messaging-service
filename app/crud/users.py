@@ -3,33 +3,11 @@ from sqlalchemy.orm import Session
 from app.schemas.users import User
 
 
-def get_by_email(db: Session, email: str) -> User | None:
-    user = db.query(User).filter(User.email == email).scalar()
-    return user
-
-
-def get_by_sms(db: Session, sms: str) -> User | None:
-    user = db.query(User).filter(User.sms == sms).scalar()
-    return user
-
-
-def create_by_email(db: Session, email: str) -> User | None:
-    user = db.query(User).filter(User.email == email).scalar()
-    return user
-
-
-def create_by_sms(db: Session, sms: str) -> User | None:
-    user = db.query(User).filter(User.sms == sms).scalar()
-    return user
-
-
 def get_or_create_users_by_emails(db: Session, emails: list[str]) -> list[int]:
-    # Get existing users
     existing_users = db.query(User).filter(User.email.in_(emails)).all()
     existing_emails = {user.email for user in existing_users}
     email_to_user_id = {user.email: user.id for user in existing_users}
 
-    # Create missing users
     missing_emails = [email for email in emails if email not in existing_emails]
     created_emails = []
 
@@ -45,12 +23,10 @@ def get_or_create_users_by_emails(db: Session, emails: list[str]) -> list[int]:
 
 
 def get_or_create_users_by_phones(db: Session, phones: list[str]) -> list[int]:
-    # Get existing users
     existing_users = db.query(User).filter(User.phone.in_(phones)).all()
     existing_phones = {user.phone for user in existing_users}
     phone_to_user_id = {user.phone: user.id for user in existing_users}
 
-    # Create missing users
     missing_phones = [phone for phone in phones if phone not in existing_phones]
     created_phones = []
 
