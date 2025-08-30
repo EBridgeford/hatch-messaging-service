@@ -35,6 +35,20 @@ clean:
 	@echo "Cleaning up..."
 	@echo "Stopping and removing containers..."
 	@docker-compose down -v
+	@echo "Stopping python server..."
+	@if [ -f server.pid ]; then \
+		PID=$$(cat server.pid); \
+		if ps -p $$PID > /dev/null 2>&1; then \
+			kill $$PID; \
+			echo "Python server stopped..."; \
+		else \
+			echo "Couldn't find python server, whoops"; \
+		fi; \
+		rm server.pid; \
+	else \
+		echo "No PID file found"; \
+	fi
+
 	@echo "Removing any temporary files..."
 	@rm -rf *.log *.tmp
 
