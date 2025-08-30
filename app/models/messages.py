@@ -1,9 +1,6 @@
 from datetime import datetime
-from enum import Enum
-from typing import Any, Dict, List, Optional, Union
 
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, Field
 
 
 class SMS(BaseModel):
@@ -11,13 +8,15 @@ class SMS(BaseModel):
     to_num: str = Field(alias="to")
     message_type: str = Field(alias="type")
     body: str
-    attachments: Optional[List[str]]
+    attachments: list[str] | None = None
     timestamp: datetime
+    message_provider_id: str | None = None
 
 
 class EMAIL(BaseModel):
     from_email: str = Field(alias="from")
     to_email: str = Field(alias="to")
     body: str
-    attachments: Optional[List[str]]
+    attachments: list[str] | None = None
     timestamp: datetime
+    xillio_id: str | None = None

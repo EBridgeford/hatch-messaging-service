@@ -1,12 +1,11 @@
-from typing import Optional
-
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
     database_url: str
-    secret_key: str
-    debug: bool = False
+    twilio_api_key: str
+    sendgrid_api_key: str
+    fastapi_debug: bool
 
     class Config:
         env_file = ".env"

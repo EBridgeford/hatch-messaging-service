@@ -1,5 +1,3 @@
-from typing import List
-
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 from tenacity import RetryError
@@ -9,8 +7,8 @@ import app.crud.conversations as convo_crud
 import app.crud.messages as msg_crud
 import app.crud.users as users_crud
 from app.api import deps
+from app.core.config import Settings
 from app.models import messages
-from app.schemas import users
 from app.schemas.messages import Message
 from app.services.mock_sendgrid import send_email
 from app.services.mock_twilio import send_sms
@@ -22,6 +20,7 @@ router = APIRouter()
 def sms(
     *,
     db: Session = Depends(deps.get_database),
+    config: Settings = Depends(deps.get_settings),
     sms: messages.SMS,
 ):
     nums_in_msg = [sms.from_num, sms.to_num]
@@ -36,24 +35,22 @@ def sms(
         print(f"No conversation in progress, created id {conversation_id}")
         success = convo_participants_crud.assign_users_for_new_convo(
             db, conversation_id, user_ids
-        )
+            )
+        if success is False:
+                raise HTTPException(status_code=500, detail="Error creating new conversation")
 
     print("Writing message to messages table")
 
-    msg = Message()
-    msg.from_id = user_ids[0]
-    msg.to_id = user_ids[1]
-    msg.message_type = sms.message_type
-    msg.body = sms.body
-    msg.attachments = sms.attachments
-    msg.sent_at = sms.timestamp
+    msg = Message.from_sms_model(
+        sms=sms, from_id=user_ids[0], to_id=user_ids[1], conversation_id=conversation_id
+    )
 
     try:
-        response = send_sms(msg)
+        response = send_sms(msg, config.twilio_api_key)
 
         msg_crud.create(db, msg)
     except RetryError:
-        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(status_code=500, detail="Error calling SMS/MMS service")
 
     return Response(status_code=status.HTTP_200_OK)
 
@@ -62,6 +59,7 @@ def sms(
 def email(
     *,
     db: Session = Depends(deps.get_database),
+    config: Settings = Depends(deps.get_settings),
     email: messages.EMAIL,
 ):
     emails_in_msg = [email.from_email, email.to_email]
@@ -77,22 +75,23 @@ def email(
         success = convo_participants_crud.assign_users_for_new_convo(
             db, conversation_id, user_ids
         )
+        if success is False:
+                raise HTTPException(status_code=500, detail="Error creating new conversation")
 
     print("Writing message to messages table")
 
-    msg = Message()
-    msg.from_id = user_ids[0]
-    msg.to_id = user_ids[1]
-    msg.body = email.body
-    msg.message_type = "email"
-    msg.attachments = email.attachments
-    msg.sent_at = email.timestamp
+    msg = Message.from_email_model(
+        email=email,
+        from_id=user_ids[0],
+        to_id=user_ids[1],
+        conversation_id=conversation_id,
+    )
 
     try:
-        response = send_email(msg)
+        response = send_email(msg, config.sendgrid_api_key)
 
         msg_crud.create(db, msg)
     except RetryError:
-        return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        raise HTTPException(status_code=500, detail="Error calling email service")
 
     return Response(status_code=status.HTTP_200_OK)

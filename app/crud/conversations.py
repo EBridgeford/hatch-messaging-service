@@ -1,13 +1,10 @@
-from typing import Optional
-
-from sqlalchemy import func, insert
 from sqlalchemy.orm import Session
 
-from app.schemas.conversations import Conversations
+from app.schemas.conversations import Conversation
 
 
 def create(db: Session) -> int:
-    new_convo = Conversations()
+    new_convo = Conversation()
     db.add(new_convo)
     db.flush()
     db.commit()

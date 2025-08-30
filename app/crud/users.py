@@ -3,6 +3,26 @@ from sqlalchemy.orm import Session
 from app.schemas.users import User
 
 
+def get_by_email(db: Session, email: str) -> User | None:
+    user = db.query(User).filter(User.email == email).scalar()
+    return user
+
+
+def get_by_sms(db: Session, sms: str) -> User | None:
+    user = db.query(User).filter(User.sms == sms).scalar()
+    return user
+
+
+def create_by_email(db: Session, email: str) -> User | None:
+    user = db.query(User).filter(User.email == email).scalar()
+    return user
+
+
+def create_by_sms(db: Session, sms: str) -> User | None:
+    user = db.query(User).filter(User.sms == sms).scalar()
+    return user
+
+
 def get_or_create_users_by_emails(db: Session, emails: list[str]) -> list[int]:
     # Get existing users
     existing_users = db.query(User).filter(User.email.in_(emails)).all()
@@ -16,7 +36,7 @@ def get_or_create_users_by_emails(db: Session, emails: list[str]) -> list[int]:
     for email in missing_emails:
         user = User(email=email)
         db.add(user)
-        db.flush()  # Get ID without committing
+        db.flush()
         email_to_user_id[email] = user.id
         created_emails.append(email)
 
@@ -37,7 +57,7 @@ def get_or_create_users_by_phones(db: Session, phones: list[str]) -> list[int]:
     for phone in missing_phones:
         user = User(phone=phone)
         db.add(user)
-        db.flush()  # Get ID without committing
+        db.flush()
         phone_to_user_id[phone] = user.id
         created_phones.append(phone)
 

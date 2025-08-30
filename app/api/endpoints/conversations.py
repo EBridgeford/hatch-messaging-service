@@ -1,20 +1,24 @@
-from typing import List
-
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+import app.crud.messages as messages_crud
 from app.api import deps
 
 router = APIRouter()
 
-# @router.post("/", response_model=schemas.User)
-# def create_user(
-#    *,
-#    db: Session = Depends(deps.get_database),
-#    user_in: schemas.UserCreate,
-# ):
-#    user = crud.user.get_by_email(db, email=user_in.email)
-#    if user:
-#        raise HTTPException(status_code=400, detail="Email already registered")
-#    return crud.user.create(db, obj_in=user_in)
-#
+
+@router.get("")
+def get_conversations_all(
+    *,
+    db: Session = Depends(deps.get_database),
+):
+    return messages_crud.get_all(db)
+
+
+@router.get("/{conversation_id}/messages")
+def get_conversations_by_id(
+    conversation_id: int,
+    *,
+    db: Session = Depends(deps.get_database),
+):
+    return messages_crud.get_by_id(db, conversation_id)

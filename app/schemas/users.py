@@ -1,17 +1,14 @@
 from datetime import datetime
 
-from pydantic import BaseModel, EmailStr, validator
+from pydantic import BaseModel, validator
 from sqlalchemy import (
     CheckConstraint,
     Column,
     DateTime,
     Integer,
     String,
-    create_engine,
     or_,
 )
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.database import Base
 
