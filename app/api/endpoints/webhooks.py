@@ -21,7 +21,6 @@ def sms(
     try:
         nums_in_msg = [sms.from_num, sms.to_num]
         user_ids = users_crud.get_or_create_users_by_phones(db, nums_in_msg)
-        print(f"Got these user_ids {user_ids}")
         conversation_id = convo_participants_crud.find_conversation_id_for_users(
             db, user_ids
         )
@@ -38,7 +37,6 @@ def sms(
                     status_code=500, detail="Error creating new conversation"
                 )
 
-        print("Writing message to messages table")
 
         msg = Message.from_sms_model(
             sms=sms,
@@ -46,6 +44,7 @@ def sms(
             to_id=user_ids[1],
             conversation_id=conversation_id,
         )
+        print("Writing message to messages table")
         msg_crud.create(db, msg)
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
@@ -62,7 +61,6 @@ def email(
     try:
         nums_in_msg = [email.from_email, email.to_email]
         user_ids = users_crud.get_or_create_users_by_emails(db, nums_in_msg)
-        print(f"Got these user_ids {user_ids}")
         conversation_id = convo_participants_crud.find_conversation_id_for_users(
             db, user_ids
         )
@@ -78,7 +76,6 @@ def email(
                     status_code=500, detail="Error creating new conversation"
                 )
 
-        print("Writing message to messages table")
 
         msg = Message.from_email_model(
             email=email,
@@ -86,6 +83,7 @@ def email(
             to_id=user_ids[1],
             conversation_id=conversation_id,
         )
+        print("Writing message to messages table")
         msg_crud.create(db, msg)
 
         return Response(status_code=status.HTTP_200_OK)

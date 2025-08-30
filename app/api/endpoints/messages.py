@@ -47,7 +47,7 @@ def sms(
 
     try:
         response = send_sms(msg, config.twilio_api_key)
-
+        print("Send text via service, now writing message to messages table")
         msg_crud.create(db, msg)
     except RetryError:
         raise HTTPException(status_code=500, detail="Error calling SMS/MMS service")
@@ -89,7 +89,7 @@ def email(
 
     try:
         response = send_email(msg, config.sendgrid_api_key)
-
+        print("Sent email via service, now writing  message to messages table")
         msg_crud.create(db, msg)
     except RetryError:
         raise HTTPException(status_code=500, detail="Error calling email service")
