@@ -21,12 +21,12 @@ import random
 from fastapi import Response, status
 from tenacity import retry, stop_after_attempt, wait_fixed
 
-from app.schemas.messages import Message
+from app.schemas.messages import MessageBase
 
 
 # Imagine this is a fully fleshed out twilio call
 @retry(stop=stop_after_attempt(3), wait=wait_fixed(1))
-def send_sms(msg: Message, api_key: str) -> Response:
+def send_sms(msg: MessageBase, api_key: str) -> Response:
     # Assume that a provider may return HTTP error codes like 500, 429 and plan accordingly
     status_codes = [
         status.HTTP_200_OK,

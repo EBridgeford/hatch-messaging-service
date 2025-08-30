@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from pydantic import BaseModel, Field
 from sqlalchemy import (
     ARRAY,
     Column,
@@ -10,7 +11,6 @@ from sqlalchemy import (
 )
 
 from app.core.database import Base
-from app.models.sms_email import EMAIL, SMS
 
 
 # CREATE TABLE messages (
@@ -40,32 +40,19 @@ class Message(Base):
     sent_at = Column(DateTime)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    @classmethod
-    def from_sms_model(
-        cls, sms: SMS, from_id: int, to_id: int, conversation_id: int
-    ) -> "Message":
-        msg = Message()
-        msg.from_id = from_id
-        msg.to_id = to_id
-        msg.conversation_id = conversation_id
-        msg.message_type = sms.message_type
-        msg.body = sms.body
-        msg.attachments = sms.attachments
-        msg.sent_at = sms.timestamp
-        msg.messaging_provider_id = sms.messaging_provider_id
-        return msg
 
-    @classmethod
-    def from_email_model(
-        cls, email: EMAIL, from_id: int, to_id: int, conversation_id: int
-    ) -> "Message":
-        msg = Message()
-        msg.from_id = from_id
-        msg.to_id = to_id
-        msg.conversation_id = conversation_id
-        msg.message_type = "email"
-        msg.body = email.body
-        msg.attachments = email.attachments
-        msg.sent_at = email.timestamp
-        msg.xillio_id = email.xillio_id
-        return msg
+class MessageBase(BaseModel):
+    from_field: str = Field(alias="from")
+    to_field: str = Field(alias="to")
+    from_id: int | None = None
+    to_id: int | None = None
+    message_type: str = Field(alias="type", default="email")
+    conversation_id: int | None = None
+    body: str
+    attachments: list[str] | None = None
+    sent_at: datetime = Field(alias="timestamp")
+    messaging_provider_id: str | None = None
+    xillio_id: str | None = None
+
+    class Config:
+        from_attributes = True  # For Pydantic v2

@@ -6,8 +6,7 @@ import app.crud.conversations as convo_crud
 import app.crud.messages as msg_crud
 import app.crud.users as users_crud
 from app.api import deps
-from app.models.sms_email import EMAIL, SMS
-from app.schemas.messages import Message
+from app.schemas.messages import Message, MessageBase
 
 router = APIRouter()
 
@@ -16,10 +15,10 @@ router = APIRouter()
 def sms(
     *,
     db: Session = Depends(deps.get_database),
-    sms: SMS,
+    message: MessageBase,
 ):
     try:
-        nums_in_msg = [sms.from_num, sms.to_num]
+        nums_in_msg = [message.from_field, message.to_field]
         user_ids = users_crud.get_or_create_users_by_phones(db, nums_in_msg)
         conversation_id = convo_participants_crud.find_conversation_id_for_users(
             db, user_ids
@@ -37,15 +36,12 @@ def sms(
                     status_code=500, detail="Error creating new conversation"
                 )
 
-
-        msg = Message.from_sms_model(
-            sms=sms,
-            from_id=user_ids[0],
-            to_id=user_ids[1],
-            conversation_id=conversation_id,
-        )
+        message.conversation_id = conversation_id
+        message.from_id = user_ids[0]
+        message.to_id = user_ids[1]
         print("Writing message to messages table")
-        msg_crud.create(db, msg)
+        message_db = Message(**message.model_dump(exclude={"from_field", "to_field"}))
+        msg_crud.create(db, message_db)
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         print(f"Exception {e}")
@@ -56,11 +52,11 @@ def sms(
 def email(
     *,
     db: Session = Depends(deps.get_database),
-    email: EMAIL,
+    message: MessageBase,
 ):
     try:
-        nums_in_msg = [email.from_email, email.to_email]
-        user_ids = users_crud.get_or_create_users_by_emails(db, nums_in_msg)
+        emails_in_msg = [message.from_field, message.to_field]
+        user_ids = users_crud.get_or_create_users_by_emails(db, emails_in_msg)
         conversation_id = convo_participants_crud.find_conversation_id_for_users(
             db, user_ids
         )
@@ -76,15 +72,12 @@ def email(
                     status_code=500, detail="Error creating new conversation"
                 )
 
-
-        msg = Message.from_email_model(
-            email=email,
-            from_id=user_ids[0],
-            to_id=user_ids[1],
-            conversation_id=conversation_id,
-        )
+        message.conversation_id = conversation_id
+        message.from_id = user_ids[0]
+        message.to_id = user_ids[1]
+        message_db = Message(**message.model_dump(exclude={"from_field", "to_field"}))
         print("Writing message to messages table")
-        msg_crud.create(db, msg)
+        msg_crud.create(db, message_db)
 
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:

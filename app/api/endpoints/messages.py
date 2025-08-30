@@ -8,8 +8,7 @@ import app.crud.messages as msg_crud
 import app.crud.users as users_crud
 from app.api import deps
 from app.core.config import Settings
-from app.models.sms_email import EMAIL, SMS
-from app.schemas.messages import Message
+from app.schemas.messages import Message, MessageBase
 from app.services.mock_sendgrid import send_email
 from app.services.mock_twilio import send_sms
 
@@ -21,9 +20,9 @@ def sms(
     *,
     db: Session = Depends(deps.get_database),
     config: Settings = Depends(deps.get_settings),
-    sms: SMS,
+    message: MessageBase,
 ):
-    nums_in_msg = [sms.from_num, sms.to_num]
+    nums_in_msg = [message.from_field, message.to_field]
     user_ids = users_crud.get_or_create_users_by_phones(db, nums_in_msg)
     conversation_id = convo_participants_crud.find_conversation_id_for_users(
         db, user_ids
@@ -41,14 +40,15 @@ def sms(
     else:
         print(f"These users are part of conversation_id {conversation_id}")
 
-    msg = Message.from_sms_model(
-        sms=sms, from_id=user_ids[0], to_id=user_ids[1], conversation_id=conversation_id
-    )
+    message.conversation_id = conversation_id
+    message.from_id = user_ids[0]
+    message.to_id = user_ids[1]
 
     try:
-        response = send_sms(msg, config.twilio_api_key)
+        response = send_sms(message, config.twilio_api_key)
         print("Send text via service, now writing message to messages table")
-        msg_crud.create(db, msg)
+        message_db = Message(**message.model_dump(exclude={"from_field", "to_field"}))
+        msg_crud.create(db, message_db)
     except RetryError:
         raise HTTPException(status_code=500, detail="Error calling SMS/MMS service")
 
@@ -60,9 +60,9 @@ def email(
     *,
     db: Session = Depends(deps.get_database),
     config: Settings = Depends(deps.get_settings),
-    email: EMAIL,
+    message: MessageBase,
 ):
-    emails_in_msg = [email.from_email, email.to_email]
+    emails_in_msg = [message.from_field, message.to_field]
     user_ids = users_crud.get_or_create_users_by_emails(db, emails_in_msg)
     conversation_id = convo_participants_crud.find_conversation_id_for_users(
         db, user_ids
@@ -80,17 +80,16 @@ def email(
     else:
         print(f"These users are part of conversation_id {conversation_id}")
 
-    msg = Message.from_email_model(
-        email=email,
-        from_id=user_ids[0],
-        to_id=user_ids[1],
-        conversation_id=conversation_id,
-    )
+    message.conversation_id = conversation_id
+    message.from_id = user_ids[0]
+    message.to_id = user_ids[1]
 
     try:
-        response = send_email(msg, config.sendgrid_api_key)
+        response = send_email(message, config.sendgrid_api_key)
         print("Sent email via service, now writing  message to messages table")
-        msg_crud.create(db, msg)
+        message_db = Message(**message.model_dump(exclude={"from_field", "to_field"}))
+
+        msg_crud.create(db, message_db)
     except RetryError:
         raise HTTPException(status_code=500, detail="Error calling email service")
 
