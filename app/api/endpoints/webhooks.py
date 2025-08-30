@@ -6,7 +6,7 @@ import app.crud.conversations as convo_crud
 import app.crud.messages as msg_crud
 import app.crud.users as users_crud
 from app.api import deps
-from app.models import messages
+from app.models.sms_email import EMAIL, SMS
 from app.schemas.messages import Message
 
 router = APIRouter()
@@ -16,7 +16,7 @@ router = APIRouter()
 def sms(
     *,
     db: Session = Depends(deps.get_database),
-    sms: messages.SMS,
+    sms: SMS,
 ):
     try:
         nums_in_msg = [sms.from_num, sms.to_num]
@@ -57,7 +57,7 @@ def sms(
 def email(
     *,
     db: Session = Depends(deps.get_database),
-    email: messages.EMAIL,
+    email: EMAIL,
 ):
     try:
         nums_in_msg = [email.from_email, email.to_email]

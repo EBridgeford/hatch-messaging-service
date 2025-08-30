@@ -10,7 +10,7 @@ from sqlalchemy import (
 )
 
 from app.core.database import Base
-from app.models.messages import EMAIL, SMS
+from app.models.sms_email import EMAIL, SMS
 
 
 # CREATE TABLE messages (

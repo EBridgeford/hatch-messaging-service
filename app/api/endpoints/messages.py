@@ -8,7 +8,7 @@ import app.crud.messages as msg_crud
 import app.crud.users as users_crud
 from app.api import deps
 from app.core.config import Settings
-from app.models import messages
+from app.models.sms_email import EMAIL, SMS
 from app.schemas.messages import Message
 from app.services.mock_sendgrid import send_email
 from app.services.mock_twilio import send_sms
@@ -21,7 +21,7 @@ def sms(
     *,
     db: Session = Depends(deps.get_database),
     config: Settings = Depends(deps.get_settings),
-    sms: messages.SMS,
+    sms: SMS,
 ):
     nums_in_msg = [sms.from_num, sms.to_num]
     user_ids = users_crud.get_or_create_users_by_phones(db, nums_in_msg)
@@ -60,7 +60,7 @@ def email(
     *,
     db: Session = Depends(deps.get_database),
     config: Settings = Depends(deps.get_settings),
-    email: messages.EMAIL,
+    email: EMAIL,
 ):
     emails_in_msg = [email.from_email, email.to_email]
     user_ids = users_crud.get_or_create_users_by_emails(db, emails_in_msg)
