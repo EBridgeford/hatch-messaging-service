@@ -34,7 +34,9 @@ def sms(
             )
 
             if success is False:
-                    raise HTTPException(status_code=500, detail="Error creating new conversation")
+                raise HTTPException(
+                    status_code=500, detail="Error creating new conversation"
+                )
 
         print("Writing message to messages table")
 
@@ -48,7 +50,7 @@ def sms(
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         print(f"Exception {e}")
-        raise HTTPException(status_code=500, detail=f"Error handling sms webhook")
+        raise HTTPException(status_code=500, detail="Error handling sms webhook")
 
 
 @router.post("/email")
@@ -72,7 +74,9 @@ def email(
                 db, conversation_id, user_ids
             )
             if success is False:
-                    raise HTTPException(status_code=500, detail="Error creating new conversation")
+                raise HTTPException(
+                    status_code=500, detail="Error creating new conversation"
+                )
 
         print("Writing message to messages table")
 
@@ -87,4 +91,4 @@ def email(
         return Response(status_code=status.HTTP_200_OK)
     except Exception as e:
         print(f"Exception {e}")
-        raise HTTPException(status_code=500, detail=f"Error handling email webhook")
+        raise HTTPException(status_code=500, detail="Error handling email webhook")

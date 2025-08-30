@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from pydantic import BaseModel
 from sqlalchemy import (
     Column,
     DateTime,
@@ -22,16 +21,3 @@ class Conversation(Base):
     id: int = Column(Integer, primary_key=True, index=True)
     created_at: datetime = Column(DateTime, default=datetime.utcnow)
     updated_at: datetime = Column(DateTime, default=datetime.utcnow)
-
-
-class ConversationBase(BaseModel):
-    conversation_id: int
-    created_at: datetime
-    updated_at: datetime
-
-
-class ConversationResponse(ConversationBase):
-    id: int
-
-    class Config:
-        from_attributes = True

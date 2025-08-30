@@ -10,7 +10,7 @@ class SMS(BaseModel):
     body: str
     attachments: list[str] | None = None
     timestamp: datetime
-    message_provider_id: str | None = None
+    messaging_provider_id: str | None = None
 
 
 class EMAIL(BaseModel):

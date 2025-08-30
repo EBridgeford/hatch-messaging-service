@@ -1,6 +1,5 @@
 from datetime import datetime
 
-from pydantic import BaseModel
 from sqlalchemy import (
     ARRAY,
     Column,
@@ -53,7 +52,7 @@ class Message(Base):
         msg.body = sms.body
         msg.attachments = sms.attachments
         msg.sent_at = sms.timestamp
-        msg.messaging_provider_id = sms.message_provider_id
+        msg.messaging_provider_id = sms.messaging_provider_id
         return msg
 
     @classmethod
@@ -70,21 +69,3 @@ class Message(Base):
         msg.sent_at = email.timestamp
         msg.xillio_id = email.xillio_id
         return msg
-
-
-class MessageBase(BaseModel):
-    conversation_id: int
-    from_id: int
-    to_id: int
-    body: str
-    attachments: list[str] | None = None
-    messaging_provider_id: str | None = None
-    xillio_id: str | None = None
-
-
-class MessageResponse(MessageBase):
-    id: int
-    sent_at: datetime
-
-    class Config:
-        from_attributes = True
