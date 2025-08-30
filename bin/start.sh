@@ -5,6 +5,7 @@ set -e
 echo "Starting the application..."
 echo "Environment: ${ENV:-development}"
 
+pip install uv
 uv sync
 source .venv/bin/activate
 python3 main.py > /dev/null 2>&1 &
