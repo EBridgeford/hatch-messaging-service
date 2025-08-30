@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from pydantic import BaseModel
 from sqlalchemy import (
     Column,
     DateTime,
@@ -7,6 +8,7 @@ from sqlalchemy import (
 )
 
 from app.core.database import Base
+from app.schemas.messages import Message, MessageBase
 
 
 # CREATE TABLE conversations (
@@ -21,3 +23,15 @@ class Conversation(Base):
     id: int = Column(Integer, primary_key=True, index=True)
     created_at: datetime = Column(DateTime, default=datetime.utcnow)
     updated_at: datetime = Column(DateTime, default=datetime.utcnow)
+
+class ConversationBase(BaseModel):
+    id: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class ConversationWithMessages(ConversationBase):
+    messages: list[MessageBase] | None = None

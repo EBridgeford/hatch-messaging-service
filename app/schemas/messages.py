@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, AliasChoices
 from sqlalchemy import (
     ARRAY,
     Column,
@@ -42,17 +42,17 @@ class Message(Base):
 
 
 class MessageBase(BaseModel):
-    from_field: str = Field(alias="from")
-    to_field: str = Field(alias="to")
+    from_field: str | None = Field(alias="from", default=None)
+    to_field: str | None = Field(alias="to", default=None)
     from_id: int | None = None
     to_id: int | None = None
     message_type: str = Field(alias="type", default="email")
     conversation_id: int | None = None
     body: str
     attachments: list[str] | None = None
-    sent_at: datetime = Field(alias="timestamp")
+    sent_at: datetime = Field(validation_alias=AliasChoices("sent_at", "timestamp"))
     messaging_provider_id: str | None = None
     xillio_id: str | None = None
 
     class Config:
-        from_attributes = True  # For Pydantic v2
+        from_attributes = True
