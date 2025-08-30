@@ -57,6 +57,7 @@ def sms(
 
     return Response(status_code=status.HTTP_200_OK)
 
+
 @router.post("/email")
 def email(
     *,

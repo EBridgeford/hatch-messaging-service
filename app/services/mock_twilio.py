@@ -29,9 +29,9 @@ def send_sms(msg: Message) -> Response:
     # Assume that a provider may return HTTP error codes like 500, 429 and plan accordingly
     status_codes = [
         status.HTTP_200_OK,
-        #status.HTTP_400_BAD_REQUEST,
-        #status.HTTP_429_TOO_MANY_REQUESTS,
-        #status.HTTP_500_INTERNAL_SERVER_ERROR,
+        # status.HTTP_400_BAD_REQUEST,
+        # status.HTTP_429_TOO_MANY_REQUESTS,
+        # status.HTTP_500_INTERNAL_SERVER_ERROR,
     ]
     status_choice = random.choice(status_codes)
 
